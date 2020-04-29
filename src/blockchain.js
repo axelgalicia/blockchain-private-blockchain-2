@@ -36,7 +36,7 @@ class Blockchain {
      * Passing as a data `{data: 'Genesis Block'}`
      */
     async initializeChain() {
-        if (this.height === -1) {
+        if (this._isGenesis(this.height)) {
             let block = new BlockClass.Block({ data: 'Genesis Block' });
             await this._addBlock(block);
         }
@@ -61,9 +61,16 @@ class Blockchain {
      * Note: the symbol `_` in the method name indicates in the javascript convention 
      * that this method is a private method. 
      */
-    _addBlock(block) {
-        let self = this;
-    
+    async _addBlock(block) {
+        if (!this._isGenesis(this.height)) {
+            block.previousBlockHash = this.chain[this.height].hash;
+        }
+        block.height = ++this.height;
+        block.time = this._currentTimestamp();
+        const hash = this._generateHash(block);
+        block.hash = hash;
+        this.chain[this.height] = block;
+        return block;
     }
 
     /**
@@ -104,9 +111,11 @@ class Blockchain {
         } else if (!this._isValidSignature()) {
             return this._errorMessage('Invalid signature!');
         }
-
-        return 'Block created';
-
+        let newBlock = new BlockClass.Block({
+            owner: address,
+            star
+        });
+        return this._validBlock(this._addBlock(newBlock));
     }
 
     /**
@@ -179,11 +188,26 @@ class Blockchain {
         return bitcoinMessage.verify(message, address, signature);
     }
 
+    _isGenesis(height) {
+        return height === -1;
+    }
+
+    _generateHash(block) {
+        return SHA256(JSON.stringify(block));
+    }
+
     _errorMessage(message) {
         return {
             isValid: false,
             error: message
         };
+    }
+
+    _validBlock(block) {
+        return {
+            isValid: true,
+            block
+        }
     }
 
 }
