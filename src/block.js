@@ -15,10 +15,10 @@ const hex2ascii = require('hex2ascii');
 class Block {
 
     // Constructor - argument data will be the object containing the transaction data
-	constructor(data){
+	constructor(data) {
 		this.hash = null;                                           // Hash of the block
 		this.height = 0;                                            // Block Height (consecutive number of each block)
-		this.body = Buffer(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
+		this.body = _jsonToHex(data);  // Will contain the transactions stored in the block, by default it will encode the data
 		this.time = 0;                                              // Timestamp for the Block creation
 		this.previousBlockHash = null;                              // Reference to the previous Block Hash
     }
@@ -65,6 +65,10 @@ class Block {
 
         // Resolve with the data if the object isn't the Genesis block
 
+    }
+
+    _jsonToHex(json) {
+        return Buffer.from(JSON.stringify(json)).toString('hex');
     }
 
 }

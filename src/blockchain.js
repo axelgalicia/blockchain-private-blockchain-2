@@ -12,6 +12,8 @@ const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./block.js');
 const bitcoinMessage = require('bitcoinjs-message');
 
+const ALLOWED_TIME_TO_SIGN_SECONDS = 300;
+
 class Blockchain {
 
     /**
@@ -34,19 +36,17 @@ class Blockchain {
      * Passing as a data `{data: 'Genesis Block'}`
      */
     async initializeChain() {
-        if( this.height === -1){
-            let block = new BlockClass.Block({data: 'Genesis Block'});
+        if (this.height === -1) {
+            let block = new BlockClass.Block({ data: 'Genesis Block' });
             await this._addBlock(block);
         }
     }
 
     /**
-     * Utility method that return a Promise that will resolve with the height of the chain
+     * Utility method that return the height of the chain
      */
-    getChainHeight() {
-        return new Promise((resolve, reject) => {
-            resolve(this.height);
-        });
+    async getChainHeight() {
+        return this.height;
     }
 
     /**
@@ -56,16 +56,14 @@ class Blockchain {
      * or reject if an error happen during the execution.
      * You will need to check for the height to assign the `previousBlockHash`,
      * assign the `timestamp` and the correct `height`...At the end you need to 
-     * create the `block hash` and push the block into the chain array. Don't for get 
+     * create the `block hash` and push the block into the chain array. Don't forget 
      * to update the `this.height`
      * Note: the symbol `_` in the method name indicates in the javascript convention 
      * that this method is a private method. 
      */
     _addBlock(block) {
         let self = this;
-        return new Promise(async (resolve, reject) => {
-           
-        });
+    
     }
 
     /**
@@ -76,10 +74,8 @@ class Blockchain {
      * The method return a Promise that will resolve with the message to be signed
      * @param {*} address 
      */
-    requestMessageOwnershipVerification(address) {
-        return new Promise((resolve) => {
-            
-        });
+    async requestMessageOwnershipVerification(address) {
+        return [address, this._currentTimestamp(), 'startRegistry'].join(':');
     }
 
     /**
@@ -99,11 +95,18 @@ class Blockchain {
      * @param {*} signature 
      * @param {*} star 
      */
-    submitStar(address, message, signature, star) {
-        let self = this;
-        return new Promise(async (resolve, reject) => {
-            
-        });
+    async submitStar(address, message, signature, star) {
+
+        const timestamp = parseInt(message.split(':')[1]);
+
+        if (!this._isValidTime(timestamp)) {
+            return this._errorMessage('Time has expired!');
+        } else if (!this._isValidSignature()) {
+            return this._errorMessage('Invalid signature!');
+        }
+
+        return 'Block created';
+
     }
 
     /**
@@ -115,7 +118,7 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-           
+
         });
     }
 
@@ -128,7 +131,7 @@ class Blockchain {
         let self = this;
         return new Promise((resolve, reject) => {
             let block = self.chain.filter(p => p.height === height)[0];
-            if(block){
+            if (block) {
                 resolve(block);
             } else {
                 resolve(null);
@@ -142,11 +145,11 @@ class Blockchain {
      * Remember the star should be returned decoded.
      * @param {*} address 
      */
-    getStarsByWalletAddress (address) {
+    getStarsByWalletAddress(address) {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            
+
         });
     }
 
@@ -160,8 +163,27 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            
+
         });
+    }
+
+    _currentTimestamp() {
+        return new Date().getTime().toString().slice(0, -3);
+    }
+
+    _isValidTime(timestamp) {
+        return (this._currentTimestamp() - timestamp) <= ALLOWED_TIME_TO_SIGN_SECONDS;
+    }
+
+    _isValidSignature(message, address, signature) {
+        return bitcoinMessage.verify(message, address, signature);
+    }
+
+    _errorMessage(message) {
+        return {
+            isValid: false,
+            error: message
+        };
     }
 
 }
