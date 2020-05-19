@@ -8,6 +8,7 @@
  *  
  */
 
+const CryptoJS = require('crypto-js');
 const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./block.js');
 const bitcoinMessage = require('bitcoinjs-message');
@@ -70,6 +71,7 @@ class Blockchain {
         const hash = this._generateHash(block);
         block.hash = hash;
         this.chain[this.height] = block;
+        console.log('NEW BLOCK:' ,block);
         return block;
     }
 
@@ -108,14 +110,14 @@ class Blockchain {
 
         if (!this._isValidTime(timestamp)) {
             return this._errorMessage('Time has expired!');
-        } else if (!this._isValidSignature()) {
+        } else if (!this._isValidSignature(message, address, signature)) {
             return this._errorMessage('Invalid signature!');
         }
         let newBlock = new BlockClass.Block({
             owner: address,
             star
         });
-        return this._validBlock(this._addBlock(newBlock));
+        return this._validBlock(await this._addBlock(newBlock));
     }
 
     /**
@@ -185,6 +187,7 @@ class Blockchain {
     }
 
     _isValidSignature(message, address, signature) {
+        console.log(message, address, signature);
         return bitcoinMessage.verify(message, address, signature);
     }
 
@@ -193,7 +196,7 @@ class Blockchain {
     }
 
     _generateHash(block) {
-        return SHA256(JSON.stringify(block));
+        return SHA256(JSON.stringify(block)).toString(CryptoJS.enc.Hex);
     }
 
     _errorMessage(message) {
@@ -206,7 +209,7 @@ class Blockchain {
     _validBlock(block) {
         return {
             isValid: true,
-            block
+            block: block
         }
     }
 

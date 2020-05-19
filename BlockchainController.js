@@ -65,11 +65,12 @@ class BlockchainController {
                 try {
                     const result = await this.blockchain.submitStar(address, message, signature, star);
                     if (result.isValid) {
-                        return res.status(200).json(block);
+                        return res.status(200).json(result);
                     } else {
                         return res.status(400).send(result);
                     }
                 } catch (error) {
+                    console.log(error);
                     return res.status(500).send(error);
                 }
             } else {
