@@ -71,6 +71,12 @@ class Block {
         return Buffer.from(JSON.stringify(json)).toString('hex');
     }
 
+    _decode() {
+        const bodyDecoded = hex2ascii(this.body);
+        this.body = bodyDecoded;
+        return this;
+    }
+
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module

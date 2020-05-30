@@ -13,7 +13,7 @@ const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./block.js');
 const bitcoinMessage = require('bitcoinjs-message');
 
-const ALLOWED_TIME_TO_SIGN_SECONDS = 300;
+const ALLOWED_TIME_TO_SIGN_SECONDS = 300000;
 
 class Blockchain {
 
@@ -127,10 +127,8 @@ class Blockchain {
      * @param {*} hash 
      */
     getBlockByHash(hash) {
-        let self = this;
-        return new Promise((resolve, reject) => {
-
-        });
+        let block = this.chain.filter( block => block.hash === hash);
+        return block.length > 0 ? block[0]._decode() : null;
     }
 
     /**
@@ -187,7 +185,6 @@ class Blockchain {
     }
 
     _isValidSignature(message, address, signature) {
-        console.log(message, address, signature);
         return bitcoinMessage.verify(message, address, signature);
     }
 
