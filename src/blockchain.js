@@ -128,7 +128,7 @@ class Blockchain {
      */
     getBlockByHash(hash) {
         let block = this.chain.filter( block => block.hash === hash);
-        return block.length > 0 ? block[0]._decode() : null;
+        return block.length > 0 ? block[0] : null;
     }
 
     /**

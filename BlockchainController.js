@@ -12,29 +12,10 @@ class BlockchainController {
         this.app = app;
         this.blockchain = blockchainObj;
         // All the endpoints methods needs to be called in the constructor to initialize the route.
-        this.getBlockByHeight();
         this.requestOwnership();
         this.submitStar();
-        this.getBlockByHash();
+        this.getBlockByHashOrHeight();
         this.getStarsByOwner();
-    }
-
-    // Enpoint to Get a Block by Height (GET Endpoint)
-    getBlockByHeight() {
-        this.app.get("/block/:height", async (req, res) => {
-            if (req.params.height) {
-                const height = parseInt(req.params.height);
-                let block = await this.blockchain.getBlockByHeight(height);
-                if (block) {
-                    return res.status(200).json(block);
-                } else {
-                    return res.status(404).send("Block Not Found!");
-                }
-            } else {
-                return res.status(404).send("Block Not Found! Review the Parameters!");
-            }
-
-        });
     }
 
     // Endpoint that allows user to request Ownership of a Wallet address (POST Endpoint)
@@ -80,19 +61,22 @@ class BlockchainController {
     }
 
     // This endpoint allows you to retrieve the block by hash (GET endpoint)
-    getBlockByHash() {
-        this.app.get("/block/hash/:hash", async (req, res) => {
-            if (req.params.hash) {
-                const hash = req.params.hash;
-                console.log('HHHASH:', hash);
-                let block = await this.blockchain.getBlockByHash(hash);
-                if (block) {
-                    return res.status(200).json(block);
-                } else {
-                    return res.status(404).send("Block Not Found!");
-                }
+    getBlockByHashOrHeight() {
+        this.app.get("/block", async (req, res) => {
+            let block = null;
+            if (req.query.hash) {
+                const hash = req.query.hash;
+                block = await this.blockchain.getBlockByHash(hash);
+            } else if (req.query.height) {
+                const height = parseInt(req.query.height);
+                block = await this.blockchain.getBlockByHeight(height);
             } else {
                 return res.status(404).send("Block Not Found! Review the Parameters!");
+            }
+            if (block) {
+                return res.status(200).json(block);
+            } else {
+                return res.status(404).send("Block Not Found!");
             }
 
         });
