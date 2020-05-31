@@ -13,7 +13,7 @@ const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./block.js');
 const bitcoinMessage = require('bitcoinjs-message');
 
-const ALLOWED_TIME_TO_SIGN_SECONDS = 300000;
+const ALLOWED_TIME_TO_SIGN_SECONDS = 300; // 5 minutes
 
 class Blockchain {
 
