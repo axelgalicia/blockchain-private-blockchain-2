@@ -104,6 +104,21 @@ class BlockchainController {
         });
     }
 
+    // This endpoint allows you validate chain and returns a list of errors
+    getStarsByOwner() {
+        this.app.get("/blocks-validation", async (req, res) => {
+            try {
+                let errors = await this.blockchain.validateChain();
+                return res.status(200).json(errors);
+            } catch (error) {
+                console.log(error);
+                return res.status(500).send("An error happened!");
+            }
+
+        });
+    }
+
+
 }
 
 module.exports = (app, blockchainObj) => { return new BlockchainController(app, blockchainObj); }

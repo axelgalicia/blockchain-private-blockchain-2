@@ -126,7 +126,7 @@ class Blockchain {
      * @param {*} hash 
      */
     getBlockByHash(hash) {
-        let block = this.chain.filter( block => block.hash === hash);
+        let block = this.chain.filter(block => block.hash === hash);
         return block.length > 0 ? block[0] : null;
     }
 
@@ -155,7 +155,7 @@ class Blockchain {
      */
     getStarsByWalletAddress(address) {
         let stars = [];
-        this.chain.forEach( block => {
+        this.chain.forEach(block => {
             const body = block.getBData();
             if (body != null && body.owner === address) {
                 stars.push(body.star);
@@ -171,12 +171,17 @@ class Blockchain {
      * 1. You should validate each block using `validateBlock`
      * 2. Each Block should check the with the previousBlockHash
      */
-    validateChain() {
-        let self = this;
+    async validateChain() {
         let errorLog = [];
-        return new Promise(async (resolve, reject) => {
-
-        });
+        for (let i = 0; i < this.chain.length; i++) {
+            const block = this.chain[i];
+            const previousBlock = i === 0 ? null : this.chain[i - 1];
+            const isValid = await block.validate();
+            if (i > 0 && (!isValid || !(block.previousBlockHash = previousBlock.hash))) {
+                errorLog.push(block);
+            }
+        }
+        return errorLog;
     }
 
     _currentTimestamp() {

@@ -10,6 +10,7 @@
  */
 
 const SHA256 = require('crypto-js/sha256');
+const CryptoJS = require('crypto-js');
 const hex2ascii = require('hex2ascii');
 
 class Block {
@@ -35,18 +36,11 @@ class Block {
      *  5. Resolve true or false depending if it is valid or not.
      *  Note: to access the class values inside a Promise code you need to create an auxiliary value `let self = this;`
      */
-    validate() {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            // Save in auxiliary variable the current block hash
-
-            // Recalculate the hash of the Block
-            // Comparing if the hashes changed
-            // Returning the Block is not valid
-
-            // Returning the Block is valid
-
-        });
+    async validate() {
+        const auxHash = this.hash;
+        const copyBlock = JSON.parse(JSON.stringify(this));
+        copyBlock.hash = null;
+        return auxHash === this._generateHash(copyBlock);
     }
 
     /**
@@ -67,6 +61,10 @@ class Block {
 
     _jsonToHex(json) {
         return Buffer.from(JSON.stringify(json)).toString('hex');
+    }
+
+    _generateHash(block) {
+        return SHA256(JSON.stringify(block)).toString(CryptoJS.enc.Hex);
     }
 
 }
