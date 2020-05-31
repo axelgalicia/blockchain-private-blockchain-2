@@ -59,22 +59,14 @@ class Block {
      *     or Reject with an error.
      */
     getBData() {
-        // Getting the encoded data saved in the Block
-        // Decoding the data to retrieve the JSON representation of the object
-        // Parse the data to an object to be retrieve.
-
-        // Resolve with the data if the object isn't the Genesis block
-
+        if (this.height === 0) {
+            return null;
+        }
+        return JSON.parse(hex2ascii(this.body));
     }
 
     _jsonToHex(json) {
         return Buffer.from(JSON.stringify(json)).toString('hex');
-    }
-
-    _decode() {
-        const bodyDecoded = hex2ascii(this.body);
-        this.body = bodyDecoded;
-        return this;
     }
 
 }

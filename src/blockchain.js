@@ -71,7 +71,6 @@ class Blockchain {
         const hash = this._generateHash(block);
         block.hash = hash;
         this.chain[this.height] = block;
-        console.log('NEW BLOCK:' ,block);
         return block;
     }
 
@@ -155,11 +154,15 @@ class Blockchain {
      * @param {*} address 
      */
     getStarsByWalletAddress(address) {
-        let self = this;
         let stars = [];
-        return new Promise((resolve, reject) => {
-
+        this.chain.forEach( block => {
+            const body = block.getBData();
+            if (body != null && body.owner === address) {
+                stars.push(body.star);
+            }
         });
+        return stars;
+
     }
 
     /**
